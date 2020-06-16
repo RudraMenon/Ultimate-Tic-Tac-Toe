@@ -4,6 +4,11 @@ from time import time
 
 class Board:
     # define 9x9 matrix. each array is a 'box'. 9 boxes make a board
+    # each row is a game of tic tac toe. 
+    # ex [1,2,3,4,5,6,7,8,9]
+    #1|2|3
+    #4|5|6
+    #7|8|9
     board = [
         [0, 0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -15,16 +20,20 @@ class Board:
         [0, 0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0, 0]]
 
-    # list of indexes of all ways you can win a gain of tic tac toe
+    # list of indexes (row,col) that one player can occupy to win
     winLines = [[(r, c) for c in range(3)] for r in range(3)] + [[(r, c) for r in range(3)] for c in range(3)] + [[
         (i, i) for i in range(3)]] + [[(i, 2 - i) for i in range(3)]]
 
+    # deepcopy board to simulate moves
     def copyBoard(self, oldboard):
         self.board = copy.deepcopy(oldboard.board)
 
+       
+    # return winner of a game of Tic Tac Toe
     def TTTWinner(self, box):
-        # return winner of a game of Tic Tac Toe
         for line in self.winLines:
+            # convert list of coordinates (row, col) to one index
+            # ex [(2,2)] -> [5]
             actLine = [box[s[0] * 3 + s[1]] for s in line]
             if actLine[0] != 0 and actLine.count(actLine[0]) == len(actLine):
                 return actLine[0]
@@ -45,6 +54,7 @@ class Board:
         return -1
 
     def prtBoard(self, boxN=4):
+        # print board to console
         print("------------------------")
         for bigRow in range(3):
             for smallRow in range(3):
@@ -66,7 +76,8 @@ class Board:
             print("------------------------")
 
     def fromPrintedString(self, s):
-        # for testing and debugging
+        # for testing and debugging 
+        # copy and paste board exactly as printed and pass as 's'
         s = s.replace("X", "1")
         s = s.replace("O", "2")
         s = s.replace(">", " ")
@@ -94,6 +105,7 @@ class Board:
                             spot += 1
 
     def setSpot(self, box, spot, num):
+        # set spot on board to player number
         self.board[box][spot] = num
 
     def getOptions(self, boxN):
@@ -119,10 +131,6 @@ class Board:
                 spot = s[0] * 3 + s[1]
                 optRank[spot] = optRank[spot] - 2
         # look at most recent predictions to improve guess
-        # if predictMoves and depth < len(predictMoves) \
-        #         and predictMoves[depth][1] == boxN\
-        #         and predictMoves[depth][2] in optRank:
-        #     optRank[predictMoves[depth][2]] += 100
 
         return list({k: v for k, v in sorted(optRank.items(), key=lambda item: item[1])}.keys())
 
@@ -177,6 +185,9 @@ class aiPlayer:
         self.minMaxVals["boxWin"] = boxWin
 
     def play(self, board, boxN):
+        # decide best move and place it
+        
+        # if this specific boxes does not have any options, loop through other boxes
         if board.boxWinner(boxN) != 0 or not board.getOptions(boxN):
             bestMove = -1
             bestRating = -10000000000
@@ -206,14 +217,14 @@ class aiPlayer:
         print("best path is ", myBestMoves[bestMove][1], myBestMoves[bestMove][0])
         # oppBestMoves = moveRating(boxN, otherPlayer(player), hypBoard, 0)
         print("My Best Moves as " + str(self.playerNum))
-        # + " is " + str(
-        #     [round(x[0], 2) for x in myBestMoves if x != 0]))
 
         print("Bot Moves: " + str(bestMove) + "in " + str(time() - totalstart))
-        # print("Opp Best Moves" + str([round(oppBestMoves[x], 2) for x in range(9)]))
         return [boxN, bestMove, myBestMoves[bestMove]]
 
     def qualifyBoard(self, cBoard):
+        # check each box and evaluate who is winning
+        # I evaluate a box by counting the # of win cases that are still 
+        # possible for one player and subtracting the # of opponent's possible win cases
         boxRatings = [0] * 9
         for boxN in range(9):
             boxWinner = cBoard.boxWinner(boxN)
