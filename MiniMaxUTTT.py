@@ -355,6 +355,9 @@ player = 2
 def playGame():
     global player, players
     boxN = 4
+    print("Player input looks like a keypad")
+    print("example")
+    print("|7|8|9|\n|4|5|6|\n|1|2|3|")
     while board.gameWinner() == 0:
         ai = players[player - 1]
         [boxN, spot, rating] = ai.play(board, boxN)
@@ -365,11 +368,12 @@ def playGame():
         updatePlayer()
         boxN = spot
 
-        # [boxN, spot] = getPlayerInput(boxN)
-        # board.setSpot(boxN, spot, player)
-        # board.prtBoard(boxN)
-        # updatePlayer()
-        # boxN = spot
+        
+        [boxN, spot] = getPlayerInput(boxN)
+        board.setSpot(boxN, spot, player)
+        board.prtBoard(boxN)
+        updatePlayer()
+        boxN = spot
 
     print("player " + str(board.gameWinner()) + " won!!!")
 
